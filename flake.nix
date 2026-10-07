@@ -22,6 +22,8 @@
       {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
+            air
+
             go
             gopls
             gotools

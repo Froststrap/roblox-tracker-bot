@@ -9,6 +9,7 @@ config/
 
 # Go build output
 /dist/
+tmp/
 
 # Go test / coverage
 coverage.out
