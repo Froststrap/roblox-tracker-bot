@@ -24,8 +24,6 @@ func isProductionChannel(channel string) bool {
 	)
 }
 
-// ClientSettingsUrl returns the client-settings API URL for a platform and
-// channel. Android is not served by client-settings, so it returns "".
 func ClientSettingsUrl(platform Platform, channel string) string {
 	if platform == PlatformAndroid {
 		return ""
@@ -35,8 +33,6 @@ func ClientSettingsUrl(platform Platform, channel string) string {
 		buildChannelPath(string(platform), channel)
 }
 
-// buildRddUrl returns a rdd.latte.to link that assembles a specific
-// production deployment into a downloadable zip in the browser.
 func buildRddUrl(platform Platform, versionGuid string) string {
 	query := url.Values{}
 	query.Set("channel", "LIVE")
@@ -46,9 +42,6 @@ func buildRddUrl(platform Platform, versionGuid string) string {
 	return rddBaseUrl + "?" + query.Encode()
 }
 
-// buildApkMirrorUrl returns the APKMirror release page for an Android
-// version such as "2.737.1584". The page only exists once APKMirror has
-// published that version.
 func buildApkMirrorUrl(version string) string {
 	slug := strings.ReplaceAll(version, ".", "-")
 
@@ -59,7 +52,6 @@ func buildApkMirrorUrl(version string) string {
 	)
 }
 
-// DownloadLinks returns download links for a production deployment.
 func DownloadLinks(
 	platform Platform,
 	deployment Deployment,
