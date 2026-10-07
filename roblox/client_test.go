@@ -68,3 +68,39 @@ func TestGetMacDeployment(t *testing.T) {
 		deployment.ClientVersionUpload,
 	)
 }
+
+func TestGetPublicChannels(t *testing.T) {
+	client := NewClient()
+
+	channels, err := client.GetPublicChannels(
+		context.Background(),
+		PlatformWindows,
+	)
+	if err != nil {
+		t.Fatalf("failed to get public channels: %v", err)
+	}
+
+	if len(channels) == 0 {
+		t.Fatal("no public channels found")
+	}
+
+	for _, channel := range channels {
+		if channel.Name == "" {
+			t.Fatal("public channel returned an empty name")
+		}
+
+		if channel.Deployment == nil {
+			t.Fatalf(
+				"public channel %s returned no deployment",
+				channel.Name,
+			)
+		}
+
+		t.Logf(
+			"public channel: %s -> %s (%s)",
+			channel.Name,
+			channel.Deployment.Version,
+			channel.Deployment.ClientVersionUpload,
+		)
+	}
+}

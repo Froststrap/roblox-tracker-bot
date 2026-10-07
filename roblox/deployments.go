@@ -14,13 +14,15 @@ const (
 )
 
 type Deployment struct {
-	Platform            Platform
-	Channel             string
-	Version             string
-	ClientVersionUpload string
+	Platform            Platform `json:"platform"`
+	Channel             string   `json:"channel"`
+	Version             string   `json:"version"`
+	ClientVersionUpload string   `json:"clientVersionUpload"`
 }
 
-func (client *Client) GetWindowsDeployment(ctx context.Context) (Deployment, error) {
+func (client *Client) GetWindowsDeployment(
+	ctx context.Context,
+) (Deployment, error) {
 	return client.GetWindowsDeploymentForChannel(ctx, "LIVE")
 }
 
@@ -28,33 +30,17 @@ func (client *Client) GetWindowsDeploymentForChannel(
 	ctx context.Context,
 	channel string,
 ) (Deployment, error) {
-	var response struct {
-		Version             string `json:"version"`
-		ClientVersionUpload string `json:"clientVersionUpload"`
-	}
-
-	path := fmt.Sprintf(
-		"/v2/client-version/WindowsPlayer/channel/%s",
+	return client.getDeployment(
+		ctx,
+		PlatformWindows,
+		"WindowsPlayer",
 		channel,
 	)
-
-	if err := client.getJson(ctx, path, &response); err != nil {
-		return Deployment{}, fmt.Errorf(
-			"get Windows deployment for channel %s: %w",
-			channel,
-			err,
-		)
-	}
-
-	return Deployment{
-		Platform:            PlatformWindows,
-		Channel:             channel,
-		Version:             response.Version,
-		ClientVersionUpload: response.ClientVersionUpload,
-	}, nil
 }
 
-func (client *Client) GetMacDeployment(ctx context.Context) (Deployment, error) {
+func (client *Client) GetMacDeployment(
+	ctx context.Context,
+) (Deployment, error) {
 	return client.GetMacDeploymentForChannel(ctx, "LIVE")
 }
 
@@ -62,26 +48,43 @@ func (client *Client) GetMacDeploymentForChannel(
 	ctx context.Context,
 	channel string,
 ) (Deployment, error) {
-	var response struct {
-		Version             string `json:"version"`
-		ClientVersionUpload string `json:"clientVersionUpload"`
-	}
-
-	path := fmt.Sprintf(
-		"/v2/client-version/MacPlayer/channel/%s",
+	return client.getDeployment(
+		ctx,
+		PlatformMacOS,
+		"MacPlayer",
 		channel,
 	)
+}
 
-	if err := client.getJson(ctx, path, &response); err != nil {
+func (client *Client) getDeployment(
+	ctx context.Context,
+	platform Platform,
+	binaryType string,
+	channel string,
+) (Deployment, error) {
+	if channel == "" {
+		return Deployment{}, fmt.Errorf("channel cannot be empty")
+	}
+
+	apiChannel := normalizeChannel(channel)
+
+	var response clientVersionResponse
+
+	if err := client.getJson(
+		ctx,
+		buildChannelPath(binaryType, apiChannel),
+		&response,
+	); err != nil {
 		return Deployment{}, fmt.Errorf(
-			"get macOS deployment for channel %s: %w",
+			"get %s deployment for channel %s: %w",
+			platform,
 			channel,
 			err,
 		)
 	}
 
 	return Deployment{
-		Platform:            PlatformMacOS,
+		Platform:            platform,
 		Channel:             channel,
 		Version:             response.Version,
 		ClientVersionUpload: response.ClientVersionUpload,
