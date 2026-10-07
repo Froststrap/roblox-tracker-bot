@@ -77,27 +77,25 @@ func (bot *Bot) close() error {
 
 func (bot *Bot) registerApplicationCommands() error {
 	applicationId := bot.session.State.User.ID
+	applicationCommands := bot.registry.ApplicationCommands()
 
-	for _, command := range bot.registry.ApplicationCommands() {
-		_, err := bot.session.ApplicationCommandCreate(
-			applicationId,
-			bot.config.DiscordGuildId,
-			command,
-		)
-		if err != nil {
-			return fmt.Errorf(
-				"register application command %q: %w",
-				command.Name,
-				err,
-			)
-		}
-
-		slog.Info(
-			"registered application command",
-			"command", command.Name,
-			"guildId", bot.config.DiscordGuildId,
+	_, err := bot.session.ApplicationCommandBulkOverwrite(
+		applicationId,
+		bot.config.DiscordGuildId,
+		applicationCommands,
+	)
+	if err != nil {
+		return fmt.Errorf(
+			"register application commands: %w",
+			err,
 		)
 	}
+
+	slog.Info(
+		"synchronised application commands",
+		"count", len(applicationCommands),
+		"guildId", bot.config.DiscordGuildId,
+	)
 
 	return nil
 }
