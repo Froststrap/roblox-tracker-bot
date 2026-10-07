@@ -104,3 +104,72 @@ func TestGetPublicChannels(t *testing.T) {
 		)
 	}
 }
+
+func TestTracker(t *testing.T) {
+	client := NewClient()
+	tracker := NewTracker(
+		client,
+		nil,
+	)
+
+	ctx := context.Background()
+
+	firstChanges, err := tracker.Check(ctx)
+	if err != nil {
+		t.Fatalf("first tracker check failed: %v", err)
+	}
+
+	if len(firstChanges) != 0 {
+		t.Fatalf(
+			"expected no changes on first check, got %d",
+			len(firstChanges),
+		)
+	}
+
+	secondChanges, err := tracker.Check(ctx)
+	if err != nil {
+		t.Fatalf("second tracker check failed: %v", err)
+	}
+
+	if len(secondChanges) != 0 {
+		t.Fatalf(
+			"expected no changes when deployment is unchanged, got %d",
+			len(secondChanges),
+		)
+	}
+
+	t.Log("tracker state is stable")
+}
+
+func TestGetAndroidDeployment(t *testing.T) {
+	provider := NewAndroidDeploymentProvider()
+
+	deployment, err := provider.GetDeployment(context.Background())
+	if err != nil {
+		t.Fatalf("failed to get Android deployment: %v", err)
+	}
+
+	if deployment.Platform != PlatformAndroid {
+		t.Fatalf(
+			"expected Android platform, got %q",
+			deployment.Platform,
+		)
+	}
+
+	if deployment.Channel != "LIVE" {
+		t.Fatalf(
+			"expected channel LIVE, got %q",
+			deployment.Channel,
+		)
+	}
+
+	if deployment.Version == "" {
+		t.Fatal("Android deployment returned an empty version")
+	}
+
+	t.Logf(
+		"Android deployment: %s / %s",
+		deployment.Channel,
+		deployment.Version,
+	)
+}
