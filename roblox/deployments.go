@@ -8,32 +8,92 @@ import (
 type Platform string
 
 const (
-	PlatformWindows Platform = "windows"
-	PlatformMacOS   Platform = "macos"
-	PlatformAndroid Platform = "android"
+	PlatformWindowsPlayer Platform = "WindowsPlayer"
+	PlatformMacPlayer     Platform = "MacPlayer"
+	PlatformWindowsStudio Platform = "WindowsStudio64"
+	PlatformMacStudio     Platform = "MacStudio"
+	PlatformAndroid       Platform = "Android"
 )
 
 type Deployment struct {
 	Platform            Platform `json:"platform"`
 	Channel             string   `json:"channel"`
 	Version             string   `json:"version"`
-	ClientVersionUpload string   `json:"clientVersionUpload"`
+	ClientVersionUpload string   `json:"clientVersionUpload,omitempty"`
+}
+
+func (client *Client) GetDeployment(
+	ctx context.Context,
+	platform Platform,
+	channel string,
+) (Deployment, error) {
+	if channel == "" {
+		channel = "LIVE"
+	}
+
+	switch platform {
+	case PlatformWindowsPlayer:
+		return client.getClientDeployment(
+			ctx,
+			platform,
+			"WindowsPlayer",
+			channel,
+		)
+
+	case PlatformMacPlayer:
+		return client.getClientDeployment(
+			ctx,
+			platform,
+			"MacPlayer",
+			channel,
+		)
+
+	case PlatformWindowsStudio:
+		return client.getClientDeployment(
+			ctx,
+			platform,
+			"WindowsStudio64",
+			channel,
+		)
+
+	case PlatformMacStudio:
+		return client.getClientDeployment(
+			ctx,
+			platform,
+			"MacStudio",
+			channel,
+		)
+
+	case PlatformAndroid:
+		return Deployment{}, fmt.Errorf(
+			"Android deployments use the Android deployment provider",
+		)
+
+	default:
+		return Deployment{}, fmt.Errorf(
+			"unsupported platform: %s",
+			platform,
+		)
+	}
 }
 
 func (client *Client) GetWindowsDeployment(
 	ctx context.Context,
 ) (Deployment, error) {
-	return client.GetWindowsDeploymentForChannel(ctx, "LIVE")
+	return client.GetDeployment(
+		ctx,
+		PlatformWindowsPlayer,
+		"LIVE",
+	)
 }
 
 func (client *Client) GetWindowsDeploymentForChannel(
 	ctx context.Context,
 	channel string,
 ) (Deployment, error) {
-	return client.getDeployment(
+	return client.GetDeployment(
 		ctx,
-		PlatformWindows,
-		"WindowsPlayer",
+		PlatformWindowsPlayer,
 		channel,
 	)
 }
@@ -41,22 +101,25 @@ func (client *Client) GetWindowsDeploymentForChannel(
 func (client *Client) GetMacDeployment(
 	ctx context.Context,
 ) (Deployment, error) {
-	return client.GetMacDeploymentForChannel(ctx, "LIVE")
+	return client.GetDeployment(
+		ctx,
+		PlatformMacPlayer,
+		"LIVE",
+	)
 }
 
 func (client *Client) GetMacDeploymentForChannel(
 	ctx context.Context,
 	channel string,
 ) (Deployment, error) {
-	return client.getDeployment(
+	return client.GetDeployment(
 		ctx,
-		PlatformMacOS,
-		"MacPlayer",
+		PlatformMacPlayer,
 		channel,
 	)
 }
 
-func (client *Client) getDeployment(
+func (client *Client) getClientDeployment(
 	ctx context.Context,
 	platform Platform,
 	binaryType string,

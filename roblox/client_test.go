@@ -13,8 +13,8 @@ func TestGetWindowsDeployment(t *testing.T) {
 		t.Fatalf("failed to get Windows deployment: %v", err)
 	}
 
-	if deployment.Platform != PlatformWindows {
-		t.Fatalf("expected platform %q, got %q", PlatformWindows, deployment.Platform)
+	if deployment.Platform != PlatformWindowsPlayer {
+		t.Fatalf("expected platform %q, got %q", PlatformWindowsPlayer, deployment.Platform)
 	}
 
 	if deployment.Channel != "LIVE" {
@@ -45,8 +45,8 @@ func TestGetMacDeployment(t *testing.T) {
 		t.Fatalf("failed to get macOS deployment: %v", err)
 	}
 
-	if deployment.Platform != PlatformMacOS {
-		t.Fatalf("expected platform %q, got %q", PlatformMacOS, deployment.Platform)
+	if deployment.Platform != PlatformMacPlayer {
+		t.Fatalf("expected platform %q, got %q", PlatformMacPlayer, deployment.Platform)
 	}
 
 	if deployment.Channel != "LIVE" {
@@ -74,7 +74,7 @@ func TestGetPublicChannels(t *testing.T) {
 
 	channels, err := client.GetPublicChannels(
 		context.Background(),
-		PlatformWindows,
+		PlatformWindowsPlayer,
 	)
 	if err != nil {
 		t.Fatalf("failed to get public channels: %v", err)

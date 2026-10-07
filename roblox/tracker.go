@@ -75,43 +75,31 @@ func (tracker *Tracker) getDeployments(
 ) ([]Deployment, error) {
 	deployments := make([]Deployment, 0)
 
-	windowsChannels, err := tracker.client.GetPublicChannels(
-		ctx,
-		PlatformWindows,
-	)
-	if err != nil {
-		return nil, fmt.Errorf(
-			"get Windows deployments: %w",
-			err,
-		)
+	platforms := []Platform{
+		PlatformWindowsPlayer,
+		PlatformMacPlayer,
 	}
 
-	for _, channel := range windowsChannels {
-		if channel.Deployment != nil {
-			deployments = append(
-				deployments,
-				*channel.Deployment,
+	for _, platform := range platforms {
+		channels, err := tracker.client.GetPublicChannels(
+			ctx,
+			platform,
+		)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"get %s deployments: %w",
+				platform,
+				err,
 			)
 		}
-	}
 
-	macChannels, err := tracker.client.GetPublicChannels(
-		ctx,
-		PlatformMacOS,
-	)
-	if err != nil {
-		return nil, fmt.Errorf(
-			"get macOS deployments: %w",
-			err,
-		)
-	}
-
-	for _, channel := range macChannels {
-		if channel.Deployment != nil {
-			deployments = append(
-				deployments,
-				*channel.Deployment,
-			)
+		for _, channel := range channels {
+			if channel.Deployment != nil {
+				deployments = append(
+					deployments,
+					*channel.Deployment,
+				)
+			}
 		}
 	}
 

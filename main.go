@@ -32,7 +32,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	bot, err := newBot(config.BotToken)
+	bot, err := newBot(config)
 	if err != nil {
 		slog.Error(
 			"failed to create Discord bot",

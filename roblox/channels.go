@@ -28,18 +28,12 @@ func (client *Client) GetPublicChannels(
 	ctx context.Context,
 	platform Platform,
 ) ([]Channel, error) {
-	binaryType, err := getBinaryType(platform)
-	if err != nil {
-		return nil, err
-	}
-
 	channels := make([]Channel, 0, len(knownChannels))
 
 	for _, channelName := range knownChannels {
-		deployment, err := client.getDeployment(
+		deployment, err := client.GetDeployment(
 			ctx,
 			platform,
-			binaryType,
 			channelName,
 		)
 
@@ -63,20 +57,6 @@ func (client *Client) GetPublicChannels(
 	}
 
 	return channels, nil
-}
-
-func getBinaryType(platform Platform) (string, error) {
-	switch platform {
-	case PlatformWindows:
-		return "WindowsPlayer", nil
-	case PlatformMacOS:
-		return "MacPlayer", nil
-	default:
-		return "", fmt.Errorf(
-			"unsupported platform: %s",
-			platform,
-		)
-	}
 }
 
 func isInvalidChannelError(err error) bool {
