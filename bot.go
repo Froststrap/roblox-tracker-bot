@@ -25,8 +25,8 @@ func newBot(config *Config) (*Bot, error) {
 
 	registry := commands.NewRegistry()
 
-	// Register commands here
 	registry.Register(commands.PingCommand())
+	registry.Register(commands.GetDeploymentInfoCommand())
 
 	bot := &Bot{
 		session:  session,
@@ -67,7 +67,7 @@ func (bot *Bot) start() error {
 func (bot *Bot) close() error {
 	if err := bot.session.Close(); err != nil {
 		return fmt.Errorf(
-			"close Discord gateway: %w",
+			"close Discord session: %w",
 			err,
 		)
 	}
