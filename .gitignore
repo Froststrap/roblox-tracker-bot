@@ -1,0 +1,19 @@
+# Getting ready for the worst here
+
+# config related
+config/
+
+# Environment
+.env
+.env.*
+
+# Go build output
+/dist/
+
+# Go test / coverage
+coverage.out
+coverage.html
+
+# OS files
+.DS_Store
+Thumbs.db
